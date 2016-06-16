@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="./jquery-2.2.4.min.js"></script>
+    <script>
+        $(document).ready(function(){
+
+            $('#no').keyup(function(){
+               if(isNaN($(this).val())){
+                   $('#info').css('color','red').html('数据类型错误！');
+                   $('#no').css('box-shadow','0 0 4px 1px red');
+                   $(this).val('');
+               }else if($(this).val()){
+                   $('#no').css('box-shadow','0 0 1px 1px green');
+                   $('#info').css('color','blue').html('ok');
+               }
+
+            });
+
+            $('#no').blur(function(){
+                if(!$(this).val()){
+                    $('#no').css('box-shadow','0 0 4px 1px red');
+                    $('#info').css('color','red').html('请输入序列号！');
+                }
+            });
+
+            $('#query').click(function(){
+                if(!$('#no').val()){
+                    alert('请输入序列号！！！');
+                    return false;
+                }
+                $('#form').submit();
+            });
+        });
+    </script>
+</head>
+<body>
+<form id="form" method="get" action="c.php">
+    序列号<input id="no" type="text" name="number">&nbsp;&nbsp;&nbsp;&nbsp;<span id="info"></span><br/>
+    <button id="query">提交</button>
+</form>
+</body>
+</html>
