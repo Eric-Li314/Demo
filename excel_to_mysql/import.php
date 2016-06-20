@@ -1,5 +1,6 @@
 <?php
 header('Content-Type: text/html; charset=utf-8');
+var_dump($_REQUEST);var_dump($_FILES);die;
 
 if($_FILES['inputExcel']['name'] == '' ){
     echo '您没有导入excel文件！','<br/>';
@@ -69,7 +70,7 @@ for ($currentRow = 2; $currentRow <= $allRow; $currentRow++) {
     $age = $PHPExcel->getActiveSheet()->getCell("C" . $currentRow)->getValue();
 
     //判断数据是否已经存在，存在则更新，不存在则插入
-    $flag = $db -> query("select * from member where name='$name'");
+    $flag = $db -> query("select name from member where name='$name'");
     if($flag->num_rows){
         $sql = "update member set sex='$sex',age='$age' where name='$name'";
         $db->query($sql);
