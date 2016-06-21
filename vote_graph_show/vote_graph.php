@@ -35,8 +35,8 @@ if(isset($_REQUEST['name'])){
         #wrap{
             position:relative;
             width:400px;
-            height:400px;
-            border:1px solid black;
+            height:200px;
+            border:1px solid grey;
 
         }
         #wrap div,#name div{
