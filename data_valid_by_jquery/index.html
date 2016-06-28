@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>数据验证-js</title>
+    <script type="text/javascript" src="jquery-2.2.4.min.js"></script>
+    <script type="text/javascript" src="data_input_valid.js"></script>
+</head>
+<body><h3>blur事件验证数据长度，至少大于5个字符</h3><hr/>
+    用户名：<input id="name"/>
+    <button>提交</button><br/><span id='info'></span>
+    <p>数据提交前做验证，通过单独的js文件实现。js验证是主要验证规则、格式等，属于表面的验证，<br/>
+        比如你说的字符串长度、邮箱格式什么的，当然这些验证也可以放在php代码里验证；<br/>
+        php验证，可以验证数据库里的东西，比如用户是否存在，密码是否正确什么的；<br/>
+        php验证在服务端更加安全，js验证在客户端，用户可以修改、屏蔽的
+    </p>
+</body>
+</html>

@@ -1,5 +1,13 @@
-<?php
-@$db = new mysqli('localhost', 'root', '', 'test');
+﻿<?php
+$db = mysql_connect('mysql.sql39.eznowdata.com', 'sq_boyyb88', 'yb19870210') or die("数据库连接失败！");
+mysql_query("set names utf8");
+mysql_select_db("sq_boyyb88");
+$res = mysql_query("select * from vote");
+$row=mysql_fetch_array($res,MYSQL_ASSOC);
+var_dump($row);
+
+die;
+@$db = new mysqli('mysql.sql39.eznowdata.com', 'sq_boyyb88', 'yb19870210', 'sq_boyyb88');
 if (mysqli_connect_errno()) {
     echo "连接失败" . mysqli_connect_error();
     exit();
@@ -32,63 +40,73 @@ if (isset($_REQUEST['name'])) {
     <meta charset="UTF-8">
     <title>投票系统demo</title>
     <style>
-        #wrap{
-            float:left;
-            width: 400px;
+        #wrap {
+            float: left;
+            width: 500px;
             height: 300px;
             border: 1px solid grey;
 
         }
 
-        #wrap div{
-            height: 60px;
-            text-align: right;
-            line-height: 60px;
+        #wrap div {
+            height: 50px;
+            line-height: 50px;
             font-size: 12px;
-            margin-top: 25px;
-            border-radius:2px;
+            margin-top: 20px;
+        }
+
+        #num1, #num2, #num3 {
+            float: left;
+            width: 15px;
         }
 
         #yang {
+            float: left;
             width: <?php echo $yang;?>%;
             background: #0000cc;
             color: white;
         }
 
         #wang {
+            float: left;
             width: <?php echo $wang;?>%;
             background: #5a0099;
             color: white;
         }
 
         #li {
+            float: left;
             width: <?php echo $li;?>%;
             background: #b52b27;
             color: white;
         }
 
         #name {
-            float:left;
+            float: left;
             width: 400px;
             height: 300px;
-            color:green;
-            font-weight:bold;
+            color: green;
+            font-weight: bold;
         }
-        .yang,.wang,.li{
+
+        .yang, .wang, .li {
             height: 60px;
             text-align: right;
             line-height: 60px;
             font-size: 16px;
-            margin-right:5px;
+            margin-right: 5px;
         }
-        .yang{
-            margin-top:50px;
+
+        .yang {
+            margin-top: 55px;
         }
-        .wang{
-            margin-top:20px;
+
+        .wang {
+            margin-top: 15px;
         }
-        .li{
-            margin-top:30px;
+
+        .li {
+            margin-top: 13px;
         }
 
     </style>
@@ -96,15 +114,24 @@ if (isset($_REQUEST['name'])) {
 <body>
 <div style="height: 320px;">
     <div id="name">
-        <div class="yang">yang </div>
-        <div class="wang">wang </div>
-        <div class="li">li </div>
+        <div class="yang">yang</div>
+        <div class="wang">wang</div>
+        <div class="li">li</div>
     </div>
     <div id="wrap"><span style="margin-left:150px">姓氏投票</span>
 
-        <div id="yang"><?php echo substr($yang, 0, 4); ?>%</div>
-        <div id="wang"><?php echo substr($wang, 0, 4); ?>%</div>
-        <div id="li"><?php echo substr($li, 0, 4); ?>%</div>
+        <div>
+            <div id="yang"></div>
+            <div id="num1"><?php echo substr($yang, 0, 4); ?>%</div>
+        </div>
+        <div>
+            <div id="wang"></div>
+            <div id="num2"><?php echo substr($wang, 0, 4); ?>%</div>
+        </div>
+        <div>
+            <div id="li"></div>
+            <div id="num3"><?php echo substr($li, 0, 4); ?>%</div>
+        </div>
     </div>
 </div>
 
