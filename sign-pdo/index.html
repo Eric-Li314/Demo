@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>sign</title>
+    <script type=text/javascript src="./jquery-2.2.4.min.js"></script>
+    <style>
+        a{
+            color:blue;
+            text-decoration: none;
+        }
+        a:hover{
+            color:orangered;
+            text-decoration: underline;
+            font-weight:bold;
+            cursor:pointer;
+        }
+    </style>
+    <script>
+        $.extend({signStatus:function(){
+            $.post(
+                    'sign.php',
+                    {"text":'ok'},
+                    function(data){
+                        if(data == 'signed'){
+                            $('#sign').html("已签到").css('color','grey');
+                        }else{
+                            $('#sign').html("签到").css('color','blue');
+                        }
+                    }
+            );
+        }});
+        $(document).ready(function () {
+           //处理签到的文字状态
+            $.signStatus();
+
+            $('#sign').click(function(){
+                $.post(
+                        'sign.php',
+                        {"sign":'ok'},
+                        function(data){
+                            if(!data){return}
+                            alert(data);
+                            $.signStatus();
+                        }
+                );
+
+            });
+        });
+    </script>
+</head>
+<body>
+<a id="sign"  >签到</a>
+</body>
+</html>
