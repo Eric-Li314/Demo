@@ -50,7 +50,8 @@ if($data){
         $sql = "update sq_boyyb88.sign set score='{$score}',lxdays='{$lxdays}',signtime='{$time}' where userip='$userip'";
         $pdos = $pdo -> prepare($sql);
         $pdos -> execute();
-        echo $pdos->rowCount()>0 ? "连续签到{$lxdays}天！" : "连续签到失败！";
+        $scoreadd = $score - $data[0]['score'];
+        echo $pdos->rowCount()>0 ? "连续签到{$lxdays}天！积分+{$scoreadd}" : "连续签到失败！";
     }
     //签到间隔超过1天
     else if($interval_days > 1){
@@ -59,7 +60,7 @@ if($data){
         $sql = "update sq_boyyb88.sign set score='{$score}',lxdays='1',signtime='{$time}' where userip='$userip'";
         $pdos = $pdo -> prepare($sql);
         $pdos -> execute();
-        echo $pdos->rowCount()>0 ? "签到成功！" : "签到失败！";
+        echo $pdos->rowCount()>0 ? "签到成功！积分+2" : "签到失败！";
     }else{
         echo "时间设置错误，当前时间小于上次签到时间！";
     }
@@ -69,5 +70,5 @@ if($data){
     $sql = "insert sq_boyyb88.sign(userip,username,score,signtime) value('$userip','$username','2','$time');";
     $pdos = $pdo -> prepare($sql);
     $pdos -> execute();
-    echo $pdos->rowCount()>0 ? "签到成功！" : "签到失败！！！";
+    echo $pdos->rowCount()>0 ? "签到成功！积分+2" : "签到失败！！！";
 }

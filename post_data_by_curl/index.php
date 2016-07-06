@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 header('content-type:text/html;charset=utf-8');
 //初始化
 $ch = curl_init();
