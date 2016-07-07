@@ -1,6 +1,6 @@
 <?php
-header("content-type:text/html; charset=utf-8");
-session_start();
+//session_start();
+file_put_contents('./debug-tttttt.log', date('Y-m-d H:i:s ').'1111111111'. "\r\n", FILE_APPEND);
 function captcha($len=4){
 	#创建画布
 	$width=80;
@@ -35,7 +35,7 @@ function captcha($len=4){
 	}
 
 	#将生成的验证码保存在session中
-	$_SESSION['vcode'] = $code;
+	//$_SESSION['vcode'] = $code;
 
 	#将验证码放到画布中
 	for ($j = 0; $j < $num; $j++) {
@@ -50,7 +50,7 @@ function captcha($len=4){
 		imagettftext($image, $size, $angle, $x, $y, $randcolor,$fontfile, $text);
 	}
 
-
+	file_put_contents('./debug-tttttt.log', date('Y-m-d H:i:s ') .'--'.$code. "\r\n", FILE_APPEND);
 	#输出验证码
 	header("content-type: image/gif");
 	imagegif($image);
@@ -59,4 +59,4 @@ function captcha($len=4){
 	imagedestroy($image);
 }
 
-captcha();
+captcha(5);
