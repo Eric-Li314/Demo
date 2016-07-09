@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>sign</title>
+    <script type=text/javascript src="./jquery-2.2.4.min.js"></script>
+    <style>
+        a{
+            color:blue;
+            text-decoration: none;
+        }
+        a:hover{
+            color:orangered;
+            text-decoration: underline;
+            font-weight:bold;
+            cursor:pointer;
+        }
+    </style>
+    <script>
+        $(document).ready(function () {
+            $('#sign').click(function(){
+                $.post(
+                        'sign.php',
+                        {'sign':'ok'},
+                        function(data){
+                            if(!data){return}
+                            alert(data);
+                        }
+                );
+            });
+        });
+    </script>
+</head>
+<body>
+    <a id="sign"  >签到</a>
+</body>
+</html>
