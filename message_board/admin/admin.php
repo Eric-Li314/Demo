@@ -6,15 +6,19 @@ if(!$_SESSION['username']){
     die;
 }
 
-$dsn = 'mysql:host=mysql.sql39.eznowdata.com;dbname=sq_boyyb88';
-$pdo = new PDO($dsn,'sq_boyyb88','yb19870210');
-$pdo -> exec("set names utf8");
+//引入
+require_once 'page_class/page.class.php';
+require_once 'pdo_class/db.class.php';
 
-$sql = "select * from sq_boyyb88.message order by time desc";//查询审核通过的留言
-$pdos = $pdo -> prepare($sql);
-$pdos -> execute();
-$data = $pdos -> fetchAll(PDO::FETCH_ASSOC);
+$db = new DB();
+$total = $db->getRowCount('message');
+$pagesize = 5;
 
+$pg = new Page($total,$pagesize);
+$start = $pg->getStart();
+
+$data = $db -> getAll('message','*',false,"time DESC","$start,$pagesize");
+$pagestr = $pg->showpage();
 
 ?>
 
@@ -23,6 +27,7 @@ $data = $pdos -> fetchAll(PDO::FETCH_ASSOC);
 <head>
     <meta charset="UTF-8">
     <title>留言管理</title>
+    <link href="page_class/page.css" rel="stylesheet" type="text/css" />
     <style>
         #check{
             color:darkblue;
@@ -69,6 +74,13 @@ $data = $pdos -> fetchAll(PDO::FETCH_ASSOC);
             </td>
         </tr>
     <?php }?>
+    <tr>
+        <td colspan="7">
+            <div id="page">
+                <?php echo $pagestr;?>
+            </div>
+        </td>
+    </tr>
 </table>
 
 </body>

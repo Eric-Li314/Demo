@@ -8,6 +8,12 @@ $pdos = $pdo -> prepare($sql);
 $pdos -> execute();
 $data = $pdos -> fetchAll(PDO::FETCH_ASSOC);
 
+//按照日期分组
+$newdata = array();
+foreach($data as $k=>$v){
+    $newdata[date('Y-m-d',$v['time'])][] = $v;
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -43,15 +49,17 @@ $data = $pdos -> fetchAll(PDO::FETCH_ASSOC);
         <th width="500">留言内容</th>
         <th nowrap >留言时间</th>
     </tr>
-    <?php foreach($data as $k=>$v){?>
+    <?php foreach($newdata as $k=>$v){?>
+    <tr><td colspan="5" style="background: grey;"><?php echo $k;?></td></tr>
+    <?php foreach($v as $k1=>$v1){ ?>
     <tr>
         <td><?php echo $k+1;?></td>
-        <td><?php echo $v['ip'];?></td>
-        <td><?php echo $v['contact'];?></td>
-        <td><?php echo $v['message'];?></td>
-        <td><?php echo date('Y-m-d H:i:s',$v['time']);?></td>
+        <td><?php echo $v1['ip'];?></td>
+        <td><?php echo $v1['contact'];?></td>
+        <td><?php echo $v1['message'];?></td>
+        <td><?php echo date('Y-m-d H:i:s',$v1['time']);?></td>
     </tr>
-    <?php }?>
+    <?php }}?>
 </table>
 </body>
 </html>
