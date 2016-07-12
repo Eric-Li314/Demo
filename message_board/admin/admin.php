@@ -11,12 +11,7 @@ require_once 'page_class/page.class.php';
 require_once 'pdo_class/db.class.php';
 
 $db = new DB();
-$total = $db->getRowCount('message');
 $pagesize = 5;
-
-$pg = new Page($total,$pagesize);
-$start = $pg->getStart();
-$where = false;
 
 //处理查询结果
 if(isset($_REQUEST['query'])){
@@ -31,11 +26,17 @@ if(isset($_REQUEST['query'])){
         $flag = 1;
         $keyword = $_REQUEST['query'];
     }
+}else{
+    $total = $db->getRowCount('message');
+    $pg = new Page($total,$pagesize);
+    $start = $pg->getStart();
+    $where = false;
 }
 
 $data = $db -> getAll('message','*',$where,"time DESC","$start,$pagesize");
 $pagestr = $data ? $pg->showpage() : '没有数据！！！';
 
+//高亮关键字，针对查询内容
 if(isset($flag)){
     foreach($data as $k=>$v){
         $replacement = '<span style="background:greenyellow">'.$keyword.'</span>';
