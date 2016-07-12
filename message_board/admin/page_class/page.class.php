@@ -127,6 +127,7 @@ class Page
         return $str;
     }
 
+    //获取limit的偏移量 limit start,length
     public function getStart(){
         $start = ($this->page - 1) * $this->page_size;
         return $start;
