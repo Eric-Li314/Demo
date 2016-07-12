@@ -1,7 +1,7 @@
 ﻿<?php
 header("Content-type: text/html; charset=utf-8");
 session_start();
-if(!$_SESSION['username']){
+if(@!$_SESSION['username'] && @!$_COOKIE['username']){
     header('location:login.php');
     die;
 }
@@ -66,7 +66,7 @@ if(isset($flag)){
 </head>
 <body>
 <div style="text-align:center;color:green;"><h2>留言后台管理</h2></div>
-<span>当前管理员:[<?php echo $_SESSION['username'];?>]</span>
+<span>当前管理员:[<?php if(@$_SESSION['username']){echo $_SESSION['username'];}else{echo $_COOKIE['username'];}?>]</span>
 <span style="margin-left:86%"><a href="logout.php?logout=1">注销</a></span>
 <hr/>
 <a href="../index.php">返回留言板</a>&nbsp;&nbsp;

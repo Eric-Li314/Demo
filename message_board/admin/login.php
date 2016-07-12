@@ -14,6 +14,7 @@ session_start();
     &nbsp;&nbsp;  密码：<input name="password" type="password"/><br/>
     验证码：<input type="text" name="validate" value="" size=10>
     <img  title="点击刷新验证码" src="./validate_code/captcha.php" align="absbottom" onclick="this.src='validate_code/captcha.php?'+Math.random();"/><br/>
+    <label for="auto">一天内免登录</label><input type="checkbox" id="auto" name="autologin" value="1"/><br/>
     <input type="submit" value="登陆">
 </form>
 
@@ -37,6 +38,9 @@ if(@!$_REQUEST['username'] || !$_REQUEST['password']){
     $pdos -> execute();
     $data = $pdos -> fetch(PDO::FETCH_ASSOC);
     if($data){
+        if(isset($_REQUEST['autologin']) && $_REQUEST['autologin']){
+            setcookie("username",$username, time()+3600*24);
+        }
         $_SESSION['username'] = $username;
         header('location:admin.php');
     }else{
