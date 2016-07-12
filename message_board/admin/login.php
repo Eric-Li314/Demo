@@ -1,29 +1,56 @@
 <?php
 session_start();
 ?>
+
+<html>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="no-js">
 <head>
-    <meta charset="UTF-8">
-    <title>登陆</title>
+    <meta charset="utf-8">
+    <title>登录(Login)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="assets/css/reset.css">
+    <link rel="stylesheet" href="assets/css/supersized.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+
+    <script src="assets/js/html5.js"></script>
 </head>
+
 <body>
-<h3>管理员登陆</h3><hr/>
-<form action="" method="post">
-    用户名：<input name="username" /><br/>
-    &nbsp;&nbsp;  密码：<input name="password" type="password"/><br/>
-    验证码：<input type="text" name="validate" value="" size=10>
-    <img  title="点击刷新验证码" src="./validate_code/captcha.php" align="absbottom" onclick="this.src='validate_code/captcha.php?'+Math.random();"/><br/>
-    <label for="auto">一天内免登录</label><input type="checkbox" id="auto" name="autologin" value="1"/><br/>
-    <input type="submit" value="登陆">
-</form>
+
+<div class="page-container">
+    <h1>登录(Login)</h1>
+    <form action="" method="post">
+        <input type="text" name="username" class="username" placeholder="请输入您的用户名！">
+        <input type="password" name="password" class="password" placeholder="请输入您的用户密码！">
+        <input type="Captcha" class="Captcha" name="validate" placeholder="请输入验证码！">
+        <img style="margin:25px 35px 0 15px;border-radius:3px;" title="点击刷新验证码" src="./validate_code/captcha.php" align="absbottom"
+             onclick="this.src='validate_code/captcha.php?'+Math.random();"/>
+        <div id="auto"><input type="checkbox" title="一天内免登录" name="autologin" value="1"></div>
+        <button type="submit" class="submit_button">登录</button>
+        <div class="error"><span>+</span></div>
+    </form>
+</div>
+
+<!-- Javascript -->
+<script src="assets/js/jquery-1.8.2.min.js" ></script>
+<script src="assets/js/supersized.3.2.7.min.js" ></script>
+<script src="assets/js/supersized-init.js" ></script>
+<script src="assets/js/scripts.js" ></script>
 
 </body>
+<div style="text-align:center;">
+    <p></p>
+</div><br/>
 </html>
 
 <?php
 if(!isset($_POST) || empty($_POST)){die;};
-if($_REQUEST['validate'] != $_SESSION['authnum_session']){die("<b style='color:red'>验证码不正确！！！</b>！！");}
+if($_REQUEST['validate'] != $_SESSION['authnum_session']){die("<b style='color:red'>验证码不正确！！！</b>");}
 if(@!$_REQUEST['username'] || !$_REQUEST['password']){
     die("<b style='color:red'>用户名或密码不能为空！！！</b>");
 }else{

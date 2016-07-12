@@ -1,11 +1,11 @@
-<?php
+﻿<?php
 header("Content-type: text/html; charset=utf-8");
 session_start();
-if(!$_SESSION['username']){
+if(@!$_SESSION['username'] && @!$_COOKIE['username']){
     header('location:login.php');
     die;
 }
-if(!isset($_REQUEST)){die;}
+if(!isset($_REQUEST) || empty($_REQUEST)){die("非法访问！！！");}
 
 $dsn = 'mysql:host=mysql.sql39.eznowdata.com;dbname=sq_boyyb88';
 $pdo = new PDO($dsn,'sq_boyyb88','yb19870210');
