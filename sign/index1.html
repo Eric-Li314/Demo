@@ -17,39 +17,21 @@
         }
     </style>
     <script>
-        $.extend({signStatus:function(){
-            $.post(
-                    'sign.php',
-                    {"text":'ok'},
-                    function(data){
-                        if(data == 'signed'){
-                            $('#sign').html("已签到").css('color','grey');
-                        }else{
-                            $('#sign').html("签到").css('color','blue');
-                        }
-                    }
-            );
-        }});
         $(document).ready(function () {
-           //处理签到的文字状态
-            $.signStatus();
-
             $('#sign').click(function(){
                 $.post(
                         'sign.php',
-                        {"sign":'ok'},
+                        {'sign':'ok'},
                         function(data){
                             if(!data){return}
                             alert(data);
-                            $.signStatus();
                         }
                 );
-
             });
         });
     </script>
 </head>
 <body>
-<a id="sign"  >签到</a>
+    <a id="sign"  >签到</a>
 </body>
 </html>
