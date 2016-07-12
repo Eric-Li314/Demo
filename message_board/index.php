@@ -53,7 +53,7 @@ foreach($data as $k=>$v){
     <tr><td colspan="5" style="background: grey;"><?php echo $k;?></td></tr>
     <?php foreach($v as $k1=>$v1){ ?>
     <tr>
-        <td><?php echo $k+1;?></td>
+        <td><?php echo $k1+1;?></td>
         <td><?php echo $v1['ip'];?></td>
         <td><?php echo $v1['contact'];?></td>
         <td><?php echo $v1['message'];?></td>
