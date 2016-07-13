@@ -10,34 +10,64 @@ if(@!$_SESSION['username'] && @!$_COOKIE['username']){
 require_once 'page_class/page.class.php';
 require_once 'pdo_class/db.class.php';
 
-$db = new DB();
-$pagesize = 5;
+$db = new DB();//实例化数据库类
+$pagesize = 5;//分页显示条数
 
 //处理查询结果
-if(isset($_REQUEST['query'])){
-    if(!$_REQUEST['query']){
-        header('location:admin.php');
+if(isset($_REQUEST['query']) || isset($_REQUEST['from']) || isset($_REQUEST['to'])){
+    if(!$_REQUEST['query'] && !$_REQUEST['from'] && !$_REQUEST['to']){
+        header('location:admin.php');//都没有数据则重新刷新管理页面
     }else{
-        $where = "contact like '%{$_REQUEST['query']}%' or message like '%{$_REQUEST['query']}%'";
-        $total = $db->execSql("select count(*) num from message where $where");
-        $total = $total[0]['num'];
-        $pg = new Page($total,$pagesize);
-        $start = $pg->getStart();
-        $flag = 1;
         $keyword = $_REQUEST['query'];
+        $from = $_REQUEST['from'];
+        $to = $_REQUEST['to'];
+        $from = strtotime($from);
+        $to = strtotime($to);
+        $where = '';
+        $flag = 1;//高亮字处理标记
+        if($keyword){//存在关键字
+            $where .= "(contact like '%{$_REQUEST['query']}%' or message like '%{$_REQUEST['query']}%') ";
+            if($from && $to && $from != $to){//存在日期 from to 都存在且不等
+                $from1 = min($from,$to);
+                $to1 = max($from,$to) + 86400;
+                $where .= " and (time between $from1 and $to1) ";
+            }elseif(!$from && !$to){//form to 都是空
+                $where .= '';
+            }else{
+                $from = $from? $from : $to;
+                $to = $from + 86400;
+                $where .= " and (time between $from and $to) ";
+            }
+
+        }else{
+            if($from && $to && $from != $to){
+                $from1 = min($from,$to);
+                $to1 = max($from,$to) + 86400;
+                $where .= " (time between $from1 and $to1) ";
+            }else{
+                $from = $from? $from : $to;
+                $to = $from + 86400;
+                $where .= " (time between $from and $to) ";
+            }
+        }
+
+        $total = $db->execSql("select count(*) num from message where $where");
+        $total = $total[0]['num'];//获取查询结果的总记录数
+        $pg = new Page($total,$pagesize);//分页类
+        $start = $pg->getStart();//获取开始位置
     }
-}else{
-    $total = $db->getRowCount('message');
+}else{//非查询得到的所有结果
+    $total = $db->getRowCount('message');//表的总记录数
     $pg = new Page($total,$pagesize);
     $start = $pg->getStart();
-    $where = false;
+    $where = false; //查询条件为空
 }
 
-$data = $db -> getAll('message','*',$where,"time DESC","$start,$pagesize");
+$data = $db -> getAll('message','*',$where,"time DESC","$start,$pagesize");//获取数据
 $pagestr = $data ? $pg->showpage() : '没有数据！！！';
 
 //高亮关键字，针对查询内容
-if(isset($flag)){
+if(isset($flag) && $keyword){
     foreach($data as $k=>$v){
         $replacement = '<span style="background:greenyellow">'.$keyword.'</span>';
         $data[$k]['contact'] = preg_replace("/$keyword/",$replacement,$v['contact']);
@@ -53,6 +83,10 @@ if(isset($flag)){
     <meta charset="UTF-8">
     <title>留言管理</title>
     <link href="page_class/page.css" rel="stylesheet" type="text/css" />
+    <script src="jquery-easyui-1.4.5/jquery.min.js" type="text/javascript"></script>
+    <script src="jquery-easyui-1.4.5/jquery.easyui.min.js" type="text/javascript"></script>
+    <link href="jquery-easyui-1.4.5/themes/default/easyui.css" rel="stylesheet" type="text/css" />
+
     <style>
         #check{
             color:darkblue;
@@ -70,9 +104,12 @@ if(isset($flag)){
 <span>当前管理员:[<?php if(@$_SESSION['username']){echo $_SESSION['username'];}else{echo $_COOKIE['username'];}?>]</span>
 <span style="margin-left:86%"><a href="logout.php?logout=1">注销</a></span>
 <hr/>
-<a href="../index.php">返回留言板</a>&nbsp;&nbsp;
+<a href="../index.php">返回留言板</a>&nbsp;&nbsp;<br/>
 <form action="">
-    <input name="query"/>
+    <input name="query" placeholder="关键字" value="<?php echo isset($_REQUEST['query'])?$_REQUEST['query']:'';?>"/>&nbsp;&nbsp;
+    <input class="easyui-datebox" style="width:100px" name="from" value="<?php echo isset($_REQUEST['from'])?$_REQUEST['from']:'';?>"/> --
+    <input class="easyui-datebox" style="width:100px" name="to" value="<?php echo isset($_REQUEST['to'])?$_REQUEST['to']:'';?>"/>
+    &nbsp;&nbsp;&nbsp;&nbsp;
     <input type="submit">
 </form>
 <table border="1" style="border:1px solid green;border-collapse: collapse;font-size:14px">
