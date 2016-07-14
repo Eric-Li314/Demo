@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 session_start();
 ?>
 
@@ -28,7 +28,7 @@ session_start();
         <input type="text" name="username" class="username" placeholder="请输入您的用户名！">
         <input type="password" name="password" class="password" placeholder="请输入您的用户密码！">
         <input type="Captcha" class="Captcha" name="validate" placeholder="请输入验证码！">
-        <img style="margin:25px 35px 0 15px;border-radius:3px;" title="点击刷新验证码" src="./validate_code/captcha.php" align="absbottom"
+        <img style="margin:25px 35px 0 15px;border-radius:3px;cursor:pointer" title="点击刷新验证码" src="./validate_code/captcha.php" align="absbottom"
              onclick="this.src='validate_code/captcha.php?'+Math.random();"/>
         <div id="auto"><input type="checkbox" title="一天内免登录" name="autologin" value="1"></div>
         <button type="submit" class="submit_button">登录</button>

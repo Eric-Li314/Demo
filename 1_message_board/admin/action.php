@@ -26,8 +26,12 @@ if(isset($_REQUEST['action']) && $_REQUEST['action'] == 'update'){
     $ref = $_REQUEST['ref'];
     $sql = "update sq_boyyb88.message set message='$message',contact='$contact' where id=$id";
     $pdos = $pdo -> prepare($sql);
-    $pdos -> execute();
-    if(!$pdos->rowCount()){die("更新失败！！！<a href='admin.php'>返回管理页</a>");}
+    $res = $pdos -> execute();
+    if($res){
+        if(!$pdos->rowCount()){die("数据没发生改变！！！<a href='admin.php'>返回管理页</a>");}
+    }else{
+        die("更新失败！！！<a href='admin.php'>返回管理页</a>");
+    }
     header("location:$ref");
 
 }

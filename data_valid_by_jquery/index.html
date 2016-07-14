@@ -4,11 +4,34 @@
     <meta charset="UTF-8">
     <title>数据验证-js</title>
     <script type="text/javascript" src="jquery-2.2.4.min.js"></script>
-    <script type="text/javascript" src="data_input_valid.js"></script>
+    <script type="text/javascript" src="data_check.js"></script>
 </head>
-<body><h3>blur事件验证数据长度，至少大于5个字符</h3><hr/>
-    用户名：<input id="name"/>
-    <button>提交</button><br/><span id='info'></span>
+<body><h3>用户注册</h3><hr/>
+<form action="test.php">
+    <table>
+        <tr>
+            <td align="right"><span style="color:red">*</span>用户名：</td>
+            <td><input id="name"/></td>
+            <td><span id='error_name'></span></td>
+        </tr>
+        <tr>
+            <td align="right"><span style="color:red">*</span>密码：</td>
+            <td><input id="pwd"/></td>
+            <td><span id='error_pwd'></span></td>
+        </tr>
+        <tr>
+            <td align="right">邮箱：</td>
+            <td><input id="email"/></td>
+            <td><span id='error_email'></span></td>
+        </tr>
+        <tr>
+            <td align="center" colspan="2">
+                <input type="button" id="btn" value="注册"/>
+                <input type="reset"/>
+            </td>
+        </tr>
+    </table>
+</form>
     <p>数据提交前做验证，通过单独的js文件实现。js验证是主要验证规则、格式等，属于表面的验证，<br/>
         比如你说的字符串长度、邮箱格式什么的，当然这些验证也可以放在php代码里验证；<br/>
         php验证，可以验证数据库里的东西，比如用户是否存在，密码是否正确什么的；<br/>

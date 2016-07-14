@@ -98,6 +98,14 @@ if(isset($flag) && $keyword){
             font-weight:bold;
         }
     </style>
+    <script>
+        $(document).ready(function(){
+            $('.delone').click(function(){
+                $flag = window.confirm('确定要删除吗？不可恢复！！！');
+                if(!$flag){$(this).attr('href','')}
+            });
+        });
+    </script>
 </head>
 <body>
 <div style="text-align:center;color:green;"><h2>留言后台管理</h2></div>
@@ -136,7 +144,7 @@ if(isset($flag) && $keyword){
             </td>
             <td>
                 <a href="update.php?action=update&id=<?php echo $v['id'];?>">修改</a>
-                <a href="action.php?action=delete&id=<?php echo $v['id'];?>">删除</a>
+                <a href="action.php?action=delete&id=<?php echo $v['id'];?>" class="delone">删除</a>
             </td>
         </tr>
     <?php }?>
