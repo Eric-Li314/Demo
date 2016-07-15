@@ -29,8 +29,8 @@ $(document).ready(function(){
             $('#error_pwd').css('color','red').html('密码不能为空');
             return;
         }
-        if($(this).val() && $(this).val().length<=6){
-            $('#error_pwd').css('color','red').html('长度至少6个位');
+        if($(this).val() && $(this).val().length<6){
+            $('#error_pwd').css('color','red').html('长度至少6位');
             return;
         }else{
             $('#error_pwd').css('color','green').html('ok');
@@ -50,12 +50,45 @@ $(document).ready(function(){
         $('#error_email').html('');
     });
 
+    $('#phone').blur(function(){
+        if($(this).val() && $(this).val().length != 11){
+            if(isNaN($(this).val())){
+                $('#error_phone').css('color','red').html('数据格式为纯数字');
+                $(this).val('');
+                return;
+            }
+            $('#error_phone').css('color','red').html('长度为11位');
+            return;
+        }
+        if($(this).val() && !isNaN($(this).val()) && $(this).val().length == 11){
+            $('#error_phone').css('color','green').html('ok');
+            return;
+        }
+        $('#error_phone').html('');
+    });
+
+    $('#name,#pwd,#email,#phone').focus(function(){
+        $(this).css('border','');
+    });
+
     $('#btn').click(function(){
         if($('#error_name').html() == "ok" && $('#error_pwd').html() == 'ok'){
-            if($('#error_email').val() == 'ok' || $('#error_email').val() == ''){
+            if( $('#email').val() && $('#error_email').html() != 'ok'){
+                $('#email').css('border','2px solid red');
+                alert("请检查数据");
+            }
+            else if( $('#phone').val() && $('#error_phone').html() != 'ok'){
+                $('#phone').css('border','2px solid red');
+                alert("请检查数据");
+            }else{
+                alert("数据通过");
+                $('form').submit();
+
             }
         }else{
-            alert('请检查数据');
+            if($('#error_name').html()!='ok') $('#name').css('border','2px solid red');
+            if($('#error_pwd').html()!='ok') $('#pwd').css('border','2px solid red');
+            alert("请检查数据");
         }
     });
 });
