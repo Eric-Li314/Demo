@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Created by USER on 2016/7/15.
  */
 $(document).ready(function(){
@@ -18,7 +18,7 @@ $(document).ready(function(){
                     var v = obj[num]['mobile']; //对应的随机号码
                     $("#roll").html(v);
                     $("#mid").val(id);
-                },100); //每隔100ms执行一次
+                },50); //每隔 执行一次
                 stop_btn.show();
                 start_btn.hide();
             }else{
@@ -39,5 +39,19 @@ $(document).ready(function(){
             stop_btn.hide();
             start_btn.show();
         });
+    });
+
+    $('#reset').click(function(){
+        $.post(
+            'reset.php',
+            {"action":"reset"},
+            function(data){
+                if(data){
+                    alert("重置成功！");
+                    window.location.reload();//刷新当前页面.
+                }
+                else{alert('重置失败！');}
+            }
+        );
     });
 });

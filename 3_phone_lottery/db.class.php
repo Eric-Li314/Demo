@@ -104,7 +104,7 @@ class DB {
         $code = '';
         if (is_array ( $arr )) {
             foreach ( $arr as $k => $v ) {
-                if ($v == '') {
+                if ($v === '') {
                     continue;
                 }
                 $code .= "`$k`='$v',";
