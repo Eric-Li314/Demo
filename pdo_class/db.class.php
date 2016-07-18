@@ -104,7 +104,7 @@ class DB {
         $code = '';
         if (is_array ( $arr )) {
             foreach ( $arr as $k => $v ) {
-                if ($v == '') {
+                if ($v === '') {  //注意此处应该为全等于，否则值为0 将符合此条件
                     continue;
                 }
                 $code .= "`$k`='$v',";
