@@ -36,12 +36,12 @@ function recount(){
 	var current = maxlen-$('#saytxt').val().length;
 	$('.counter').html(current);
 
-	if(current<1 || current>maxlen){
-		$('.counter').css('color','#D40D12');
-		$('input.sub_btn').attr('disabled','disabled');
+	if(current<0 || current>maxlen){
+		$('.counter').css('color','#D40D12').html("超过最大字数限制！");
+		$('input.sub_btn').attr('disabled','disabled').attr('src',"file/btn1.jpg");
 	}
 	else
-		$('input.sub_btn').removeAttr('disabled');
+		$('input.sub_btn').removeAttr('disabled').attr('src',"file/btn.gif");
 
 	if(current<10)
 		$('.counter').css('color','#D40D12');
