@@ -1,0 +1,95 @@
+body {
+	background-image: url(images/bg_noise.jpg);
+	background-repeat: repeat;
+	margin:0 0 0 0;
+}
+-->
+.main{
+	width:60%;
+	margin:0 auto;
+	height:auto;
+	background:#FFFFFF;
+}
+.main .content{
+	height:auto;
+
+}
+
+h1{
+	margin:1em auto;
+	text-align:center;
+}
+.description{
+	margin:0 0;
+	padding:0 4em 1em 4em;
+	line-height:2em;
+	text-indent: 2em;
+}
+.mcontent{
+	margin:0 auto;
+	padding:0 4em 1em 4em;
+}
+.obox{
+	width:28em;
+	margin:0 0 0 1em;
+	float:left;
+}
+.votebu{
+	width:30%;
+	text-align:center;
+	margin:2em 4em;
+}
+
+img{
+	max-width:100%;
+}
+@media screen and (max-width:768px){
+	.main{
+		width:100%;
+		margin:0 auto;
+		
+		background:#FFFFFF;
+	}
+	.description{
+		margin:0 0;
+		padding:0 0.5em 1em 0.5em;
+		line-height:2em;
+		text-indent: 2em;
+	}
+	.mcontent{
+		margin:0 auto;
+		padding:0 0.5em 1em 0.5em;
+	}
+	.obox{
+		width:20em;
+		margin:0 0 0 1em;
+		float:left;
+	}	
+}
+
+
+a {
+	font-family: 宋体, Consolas, 微软雅黑;
+	color: #000000;
+}
+a:link {
+	text-decoration: none;
+	color: #939393;
+}
+a:visited {
+	text-decoration: none;
+	color: #939393;
+}
+a:hover {
+	text-decoration: none;
+	color: #696969;
+}
+a:active {
+	text-decoration: none;
+	color: #696969;
+}
+body,td,th {
+	font-family: 宋体, Consolas, 微软雅黑;
+	font-size: 10px;
+	color: #939393;
+}
