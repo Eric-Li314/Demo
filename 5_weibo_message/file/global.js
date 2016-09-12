@@ -27,8 +27,9 @@ $(function(){
 			  }
 		  }
 	    });
-		return false;
+		return false; //不会页面发生跳转
 	});
+	
 });
 
 function recount(){
