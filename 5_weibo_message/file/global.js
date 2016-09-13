@@ -12,7 +12,7 @@ $(function(){
 			$("#msg").show().html("你总得说点什么吧.").fadeOut(1200);;
 			return false;
 		}
-		$('.counter').html('<img style="padding:8px 12px" src="images/load.gif" alt="正在处理..." />');
+		$('.counter').html('<p>正在处理...</p>');
 		$.ajax({
 		   type: "POST",
 		   url: "submit.php",
