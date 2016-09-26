@@ -45,17 +45,25 @@ $(document).ready(function(){
         $.post(
             "save.php",
             {
+                "action":"addnickname",
                 "nickname":nickname,
                 "type":"提示",
                 "content":"joined the chat room!",
             },
             function(data){
+                if(data=="repeat"){
+                    alert("该昵称已被使用！");
+                    $('#addNickname').html("提交").prop("disabled",false);
+                    $('input[name=nickname]').prop("disabled",false).val('');
+                    return false;
+                }
                 if(jQuery.parseJSON(data).status == "ok"){
                     $('#mask').hide();
                     $('#input').hide();
                     var info = "<p style='color:blue'>"+nickname+" joined the chat room!</p>";
                     $('#list').append(info);
                     $('#header').html(nickname);
+
                 }else{
                     alert("昵称提交失败！");
                     $('#addNickname').html("提交").prop("disabled",false);
@@ -63,45 +71,70 @@ $(document).ready(function(){
                 }
 
                 $('#list').scrollTop(9999);//滚动条自动到底部
+
+                //ajax短轮询获取消息
+                setInterval(function(){
+                    $.ajax({
+                        type: "POST",
+                        url: "get.php",
+                        data: {"nickname":nickname},
+                        dataType: "json", //以json格式接收直接转为json对象
+                        success: function (json) {
+                            if(json){
+                                $.each(json,function(i,e){
+
+                                    var time = timetostr(e.time);
+                                    if(e.type == "提示"){
+                                        var info = "<p style='color:blue'>"+ e.nickname+"("+time+") "+ e.content+"</p>";
+                                    }else{
+                                        var info = "<p><span style='color:blue;'>"+ e.nickname +"</span>("+ time +")： "+ e.content +"</p>"
+                                    }
+
+                                    $('#list').append(info);
+
+                                });
+                                $('#list').scrollTop(99999);//滚动条自动到底部
+
+
+                            }else{
+
+                            }
+
+                            //$('#list').scrollTop(999999);//滚动条自动到底部
+
+                        },
+                        error: function () {
+
+                        },
+                    });
+                },1000);
+
+                //ajax轮询更新用户在线状态--10s一次
+                setInterval(function(){
+                    $.ajax({
+                        type: "POST",
+                        url: "update_status.php",
+                        data: {"nickname":nickname},
+                        dataType: "json", //以json格式接收直接转为json对象
+                        success: function (data) {
+                            if(data){
+                                //data为下线用户提示消息
+                                $('#list').append(data);
+                                $('#list').scrollTop(99999);//滚动条自动到底部
+
+                            }else{}
+
+                            //$('#list').scrollTop(999999);//滚动条自动到底部
+
+                        },
+                        error: function () {
+
+                        },
+                    });
+                },10000);
             }
         );
 
-
-        //ajax短轮询获取消息
-        setInterval(function(){
-            $.ajax({
-                type: "POST",
-                url: "get.php",
-                data: {},
-                dataType: "json", //以json格式接收直接转为json对象
-                success: function (json) {
-                    if(json){
-                        $.each(json,function(i,e){
-
-                            var time = timetostr(e.time);
-                            if(e.type == "提示"){
-                                var info = "<p style='color:blue'>"+ e.nickname+"("+time+") "+ e.content+"</p>";
-                            }else{
-                                var info = "<p><span style='color:blue;'>"+ e.nickname +"</span>("+ time +")： "+ e.content +"</p>"
-                            }
-
-                            $('#list').append(info);
-
-                        });
-                        $('#list').scrollTop(9999);//滚动条自动到底部
-
-                    }else{
-
-                    }
-
-                    $('#list').scrollTop(999999);//滚动条自动到底部
-
-                },
-                error: function () {
-
-                },
-            });
-        },1000);
 
 
     });
@@ -113,20 +146,22 @@ $(document).ready(function(){
         $.post(
             "save.php",
             {
+                "action":"send",
                 "nickname":nickname,
                 "type":"内容",
                 "content":content,
             },
             function(data){
                 if(jQuery.parseJSON(data).status == "ok"){
-                   // var info = "<p><span style='color:blue;'>"+ nickname +"</span>("+ jQuery.parseJSON(data).time +")： "+content+"</p>";
-                   // $('#list').append(info);
+                    var info = "<p><span style='color:blue;'>"+ nickname +"</span>("+ jQuery.parseJSON(data).time +")： "+content+"</p>";
+                    $('#list').append(info);
                     $('#content').val("");
                 }else{
                     alert("发送失败！！！");
                 }
 
                 $('#list').scrollTop(9999);//滚动条自动到底部
+                //$("#list").scrollTop=$("#list").scrollHeight;
             }
         );
 

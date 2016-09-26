@@ -7,12 +7,12 @@ if(!isset($_REQUEST)){
 }
 
 $db = new DB();
+$nickname = $_REQUEST['nickname'];
+$nowtime = time();
+$time = $nowtime-1;
 
-$time = time()-1;
-
-
-$data = $db -> getAll("webim","*","time>$time","id desc");
-
+//获取最新数据 每秒读一次数据
+$data = $db -> getAll("webim","*","time=$time and nickname != '$nickname'","id asc");
 if($data){
     echo json_encode($data);
 }else{
