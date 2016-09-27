@@ -1,5 +1,4 @@
 <?php
-
 header("content-type:text/html;charset=utf-8");
 date_default_timezone_set("PRC");
 include "./public/db.class.php";
@@ -33,7 +32,8 @@ if($_REQUEST['action'] == "addnickname"){
 
     $db -> add("webim",$dataArr);
     if($db->getLastId()){
-        echo json_encode(array("status"=>"ok","time"=>date("Y-m-d H:i:s",$nowtime)));
+        $lastid = $db -> getLastId();
+        echo json_encode(array("lastid"=>$lastid,"status"=>"ok","time"=>date("Y-m-d H:i:s",$nowtime)));
     }else{
         echo json_encode(array("status"=>"error"));
     }

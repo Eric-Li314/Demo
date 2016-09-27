@@ -4,25 +4,19 @@
 
 $(document).ready(function(){
 
-    //转换为 2018-11-15 18:11:25 格式
+    //转换为 2018-01-05 18:11:25 格式
     function timetostr(timestamp){
         var d = new Date(timestamp * 1000);
         var y = d.getFullYear();
         var m = d.getMonth() + 1;
+        m = m < 10 ? "0" + m : m;
         var day = d.getDate();
+        day = day < 10 ? "0" + day : day;
         var h = d.getHours();
-
-        if(d.getMinutes()<10){
-            var i = "0"+ d.getMinutes();
-        }else{
-            var i = d.getMinutes();
-        }
-
-        if(d.getSeconds()<10){
-            var s = "0"+ d.getSeconds();
-        }else{
-            var s = d.getSeconds();
-        }
+        var i = d.getMinutes();
+        i = i < 10 ? "0" + i : i;
+        var s = d.getSeconds();
+        s = s < 10 ? "0" + s : s;
 
         return y+"-"+m+"-"+day+" "+h+":"+i+":"+s;
     }
@@ -63,6 +57,7 @@ $(document).ready(function(){
                     var info = "<p style='color:blue'>"+nickname+" joined the chat room!</p>";
                     $('#list').append(info);
                     $('#header').html(nickname);
+                    $('#lastid').html($.parseJSON(data).lastid);
 
                 }else{
                     alert("昵称提交失败！");
@@ -77,11 +72,11 @@ $(document).ready(function(){
                     $.ajax({
                         type: "POST",
                         url: "get.php",
-                        data: {"nickname":nickname},
+                        data: {"nickname":nickname,"lastid":$('#lastid').html()},
                         dataType: "json", //以json格式接收直接转为json对象
                         success: function (json) {
                             if(json){
-                                $.each(json,function(i,e){
+                                $.each(json.data,function(i,e){
 
                                     var time = timetostr(e.time);
                                     if(e.type == "提示"){
@@ -93,10 +88,9 @@ $(document).ready(function(){
                                     $('#list').append(info);
 
                                 });
+                                $('#lastid').html(json.lastid);//存lastid
                                 $('#list').scrollTop(99999);//滚动条自动到底部
 
-
-                            }else{
 
                             }
 
