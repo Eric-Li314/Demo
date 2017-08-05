@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>header 跨域实例</title>
+    <script src="http://cdn.static.runoob.com/libs/jquery/1.8.3/jquery.js"></script>
+</head>
+<body>
+<h4>Header实现跨域（由服务器端后台实现，需要浏览器支持）</h4>
+<p>CORS需要浏览器和服务器同时支持。目前，所有浏览器都支持该功能，IE浏览器不能低于IE10。</p>
+<p>整个CORS通信过程，都是浏览器自动完成，不需要用户参与。对于开发者来说，CORS通信与同源的AJAX通信没有差别，代码完全一样。</p>
+<p>浏览器一旦发现AJAX请求跨源，就会自动添加一些附加的头信息，有时还会多出一次附加的请求，但用户不会有感觉。</p>
+<p>因此，实现CORS通信的关键是服务器。只要服务器实现了CORS接口，就可以跨源通信。</p>
+<p id="url"></p>
+<p id="msg"></p>
+<div id="divCustomers"></div>
+
+<script>
+    var flag = true;
+    var url = "http://127.0.0.100/more/demo/cross_domain_example/cors/data.php";
+    $('#url').html("ajax请求的地址为："+url);
+    $.get(url,{}, function(data) {
+        //如果没在后台设置header实现跨域，就无法弹出提示框，虽然请求正常发送并返回了值，但无法浏览器不让使用，导致结果为空
+        $('#msg').css('color','green').html(data);
+        flag = false;
+
+    },"json"); //指定返回数据格式为json
+    if(flag) $('#msg').css('color','red').html("获取数据失败");
+
+</script>
+</body>
+</html>

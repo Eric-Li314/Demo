@@ -1,0 +1,4 @@
+基于websocket，是别人写好的代码
+
+先启动websocket.php
+再打开client页面

@@ -1,0 +1,75 @@
+2.2 memcache缓存
+Memcached是内存缓存技术，读取比文件缓存更快
+使用的条件：
+	数据经常读，写
+	文章点击数
+	聊天工具
+	投票系统 同步方案
+	
+2.2.1memcache windows下安装
+1. http://jehiah.cz/projects/memcached-win32/ 上下载memcache的windows稳定版，解压放某个盘下面，比如在c:\memcached??
+2. 在cmd命令界面下输入 ‘c:\memcached\memcached.exe -d install’ 安装
+3. 再输入： ‘c:\memcached\memcached.exe -d start’ 启动
+注意： 以后memcached将作为windows的一个服务每次开机时自动启动。默认端口：11211。
+如果你要卸载，执行下面的命令：
+1.memcached.exe -d stop
+2.memcached.exe -d uninstall
+指定端口号
+memcached.exe -p 10000 -m 内存的大小  -d start
+2.2.2数据存储格式
+1、键值对的形式存贮 ，一个key对应一个值，一个值在内存中占用一个或多个4k大小的块。
+
+2.2.2 php与memcache数据交互
+在PHP中使用Memcached，有两种方式
+一种：是安装PHP的memcache扩展(实际上还有另外一个memcached扩展，是基于比较流行的libmemcached库封装的)，该扩展是用c写的，效率较高，需要在服务器上安装。
+另外一种：则是直接使用客户端的php-memcached-client类库
+
+下面主要介绍第二种：
+首先 下载 memcached-client.php， 在下载了 memcached-client.php 之后，就可以通过这个文件中的类“memcached”对 memcached 服务进行操作了。其实代码调用非常简单，主要会用到的方法有 add()、get()、replace() 和 delete()，方法说明如下：
+
+add ($key, $val, $exp = 0)
+往 memcached 中写入对象，$key 是对象的唯一标识符，$val 是写入的对象数据，$exp 为过期时间，单位为秒，默认为不限时间；
+get ($key)
+从 memcached 中获取对象数据，通过对象的唯一标识符 $key 获取；
+replace ($key, $value, $exp=0)
+使用 $value 替换 memcached 中标识符为 $key 的对象内容，参数与 add() 方法一样，只有 $key 对象存在的情况下才会起作用；
+delete ($key, $time = 0)
+删除 memcached 中标识符为 $key 的对象，$time 为可选参数，表示删除之前需要等待多长时间。
+
+说明：最常用的地方，会员数据缓存在内存中。
+
+ThinkPHP:
+$options = array('host' => '127.0.0.1', 'port' => 11211, 'timeout' => 10,
+
+'persistent' => false);
+
+$Cache = Cache::getInstance('memcache', $options);
+
+$Cache->set('name','ThinkPHP'); // 缓存name数据
+
+$value = $Cache->get('name'); // 获取缓存的name数据
+
+echo $value;
+
+YII:
+a、配置
+    'cache' => array(      
+        'class' => 'system.caching.CMemCache',   
+        'servers' => array( array('host' => '127.0.0.1', 'port' => 11211)),  
+        'keyPrefix' => '',   
+        'hashKey' => false,   
+        'serializer' => false)   
+b、代码
+$key = 'people';   
+$value = json_encode(array('name'=>'ball', 'age'=>'male'));   
+$expire = 10;   
+Yii::app()->cache->set($key, $value, $expire);   
+Yii::app()->cache->get($key);   
+Yii::app()->cache->delete($key);  
+
+
+
+
+
+
+

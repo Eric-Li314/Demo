@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="initial-scale=1.0,width=device-width" /> 
+<title>后台登录</title>
+
+<script type="text/javascript" src="js/jquery.min.js"></script>
+
+<link rel="stylesheet" href="css/add.css" type="text/css" media="screen" />
+<link rel="stylesheet" href="utilLib/bootstrap.min.css" type="text/css" media="screen" />
+<style type="text/css">
+@media screen and (max-width:768px){
+	.div_from_aoto{
+		padding:6em 0 0 1em;
+		width:100%;
+		margin:0 auto;
+
+	}
+}
+</style>
+</head>
+<body>
+<div class="div_from_aoto" style="width: 300px;">
+    <FORM action="logincheck.php" method="post" enctype="multipart/form-data" name="form1" id="form1">
+        <DIV class="control-group">
+            <label class="laber_from">用户名</label>
+            <DIV  class="controls" ><INPUT class="username" name="username" type=text placeholder=" 请输入用户名"><P class=help-block></P></DIV>
+        </DIV>
+        <DIV class="control-group">
+            <LABEL class="laber_from">密码</LABEL>
+            <DIV  class="controls" ><INPUT class="passwd" name="passwd" type=password placeholder=" 请输入密码">
+            <P class=help-block></P></DIV>
+        </DIV>
+
+        <DIV class="control-group">
+            <LABEL class="laber_from" ></LABEL>
+            <DIV class="controls" ><button class="btn btn-success" style="width:120px;" >登录</button></DIV>
+        </DIV>
+  </FORM>
+</div>
+</body>
+</html>

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>proxy</title>
+    <script src="http://apps.bdimg.com/libs/jquery/1.6.4/jquery.js"></script>
+    <script>
+        $(document).ready(function(){
+            //利用代理访问
+            $.post("proxy.php",{"name":"yangbin"},function(data){
+                if(data) alert("获取数据成功（代理） : "+data);
+                else alert("获取数据失败（代理）!");
+            });
+
+            //直接跨域访问
+            //访问时确保本机地址不和跨域访问的地址一样 如127.0.0.1访问本文件
+            $.post("http://127.0.0.111/more/demo/cross_domain_example/proxy/data.php",{"name":"yangbin"},function(data){
+                if(data) alert("获取数据成功（直接访问）: "+data);
+                else alert("获取数据失败（直接访问）!");
+            });
+        });
+    </script>
+</head>
+<body>
+<h4>服务器代理方式实现跨域</h4>
+
+</body>
+</html>

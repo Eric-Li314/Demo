@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>数据验证-js</title>
+    <script type="text/javascript" src="jquery-2.2.4.min.js"></script>
+    <script type="text/javascript" src="data_check.js"></script>
+</head>
+<body><h3>用户注册</h3><hr/>
+<form action="data_receive.php">
+    <table>
+        <tr>
+            <td align="right"><span style="color:red">*</span>用户名：</td>
+            <td><input id="name" name="name"/></td>
+            <td><span id='error_name'></span></td>
+        </tr>
+        <tr>
+            <td align="right"><span style="color:red">*</span>密码：</td>
+            <td><input type="password" id="pwd" name="pwd"/></td>
+            <td><span id='error_pwd'></span></td>
+        </tr>
+        <tr>
+            <td align="right">邮箱：</td>
+            <td><input id="email" name="email"/></td>
+            <td><span id='error_email'></span></td>
+        </tr>
+        <tr>
+            <td align="right">手机号码：</td>
+            <td><input id="phone" name="phone"/></td>
+            <td><span id='error_phone'></span></td>
+        </tr>
+        <tr>
+            <td align="center" colspan="2">
+                <input type="button" id="btn" value="注册"/>
+                <input type="reset"/>
+            </td>
+        </tr>
+    </table>
+</form>
+    <p>
+        js在前端验证是为了客户体验，有更好的客户交互，php在后端要进行二次数据校验以保证安全<br/>
+        因为通过手段可以绕过页面直接向后端提交post数据，从而屏蔽掉网页的安全验证机制
+    </p>
+</body>
+</html>
