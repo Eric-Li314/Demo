@@ -35,13 +35,14 @@ switch($type){
         $url = 'http://api.btc38.com/v1/getOrderList.php';
         break;
     case 'make_order': //挂单
+        $trade_type = isset($_REQUEST['trade_type'])?$_REQUEST['trade_type']:2;//默认是卖单
         $data = array(
             "key" => "f03f2df42aea1245ff3dc52c641cb26c",
             "time" => $stamp,
             "md5" => $mdt,
             'mk_type' => 'cny',
             'coinname' => $_POST['coinname'],
-            'type'=> 2,//卖单  1是买单
+            'type'=> $trade_type,//  1是买单 2是卖单
             'amount'=>$_POST['amount'],
             'price'=>$_POST['price']
         );

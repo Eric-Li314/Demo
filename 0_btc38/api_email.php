@@ -1,11 +1,11 @@
 <?php
 
 $to_email  = '13629795255@139.com';
-if($_REQUEST['flag'])
-    $to_title  = '价格浮动通知('.$_REQUEST['flag'].')';
-else
-    $to_title  = '价格浮动通知';
+$to_title  = '价格浮动通知';
 $to_content = $_REQUEST['to_content'];
+if(isset($_REQUEST['title'])){
+    $to_title = $_REQUEST['title'];
+}
 
 //以我的163邮箱为发送账号
 require 'PHPMailer/class.smtp.php';
