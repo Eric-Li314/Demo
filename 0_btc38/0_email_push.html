@@ -6,12 +6,6 @@
     <!--<link rel="icon" href="favicon.ico" mce_href="favicon.ico" type="image/x-icon">
     <link rel="shortcut icon" href="favicon.ico" mce_href="favicon.ico" type="image/x-icon">-->
     <style>
-        table th{
-            width:180px;
-        }
-        input[type=checkbox]{
-
-        }
         .cc{
             width:140px;
             display: inline-block;
@@ -27,71 +21,56 @@
         //获取最近交易价格,触发邮箱推送
         function get_trade(){
             console.log('get_trade run');
-            console.log(window.email_flag);
-            //检测是否已发送所有邮件通知
-            var send_all = 1;
-            $.each(window.email_flag,function(i,e){
-                if(e == 0){
-                    send_all = 0;
-                    return false;
-                }
-            });
-            if(send_all == 1){ //全部发送完毕,复位初始状态
-                window.clearInterval(window.polling_time_number);//关闭轮询
-                $('#btn').html('启用推送');
-                $('#info').html('未启用').css('color','darkred');
-                $('input[name]').attr('disabled',false).parent().css('color','black');
-                flag = 1;
-            }
+            console.log(window.param);
             $.ajax({
                 type:'post',
                 url:'api.php',
                 data:{type:'get_ticker_all',n:Math.random()},
                 dataType:'json', //返回类型
                 success:function(ret){
-                    var text = ''; //邮件通知内容
-                    var flag = null;
-                    $.each(window.coins,function(i,e){
-                        if(!window.coins[i]){ //初次运行设置基准价格
+                    $.each(window.param.coins,function(i,e){
+                        if(!window.param.coins[i]){
+                            //初次运行设置基准价格
                             console.log('设置'+coins_arr[i]+'基准价格');
-                            window.coins[i] = 1*ret[i].ticker.last
+                            window.param.coins[i] = 1*ret[i].ticker.last
                         }else{ //涨跌幅度判断
                             var current_price = 1*ret[i].ticker.last;//当前最新价格
-                            var diff_price = Math.round((current_price - window.coins[i])*10000)/10000;//价格差，保留小数点后5位
-                            var price_change = Math.abs(diff_price)/window.coins[i];//价格变化百分比
-                            price_change = Math.round(price_change*100)/100;//保留小数点后5位
-                            if(window.email_flag[i]){//已发送，涨或跌只发送一次
-                                return true;//continue
+                            var diff_price = Math.round((current_price - window.param.coins[i])*10000)/10000;//价格差，保留小数点后5位
+                            var price_change = diff_price/window.param.coins[i];//价格变化百分比
+                            price_change = Math.floor(price_change*1000)/1000;//保留小数点后3位
+                            //变化倍数为预设的整数倍且在该梯度没有被通知过时则发邮件通知
+                            var change = 0;//变化跌幅（为预设梯度的整数倍）
+                            if(price_change > 0){
+                               var change_times = Math.floor(price_change/window.param.more);//变化倍数
+                                change = change_times*1*window.param.more;
+                            }else if(price_change < 0){
+                               var change_times = Math.floor(price_change/window.param.less);
+                                change = change_times*1*window.param.less;
                             }
-                            console.log(coins_arr[i]+"当前价："+current_price+'，基准价：'+window.coins[i]+'，价格变化：'+diff_price+'，变化百分比：'+price_change*100+"%");
-                            if(diff_price > 0 && price_change >= (window.more*1/100)){ //涨
-                                text += "<p style='color:green'>"+coins_arr[i]+'：'+current_price+',涨幅超过'+window.more+'%</p>';
-                                window.email_flag[i] = 1;
-                            }else if(diff_price < 0 && price_change >= (window.more*1/100)){ //跌
-                                text += '<p style="color:red">'+coins_arr[i]+'：'+current_price+',跌幅超过'+window.more+'%</p>';
-                                window.email_flag[i] = 1;
+                            change = Math.floor(change*1000)/1000;
+                            //执行通知  排除变化为0或者变化幅度达不到预设梯度的最低值（如0.01/0.1取整后为0）
+                            if(change){
+                                if(window.param.range_list[i].indexOf(change) == -1){//不存在，则进行邮件通知
+                                    var text = coins_arr[i]+'波动幅度：'+change*100+'%';
+                                    $.post(
+                                            'api_email.php',
+                                            {to_content:text,n:Math.random(),flag:''},
+                                            function(ret){
+                                                console.log(ret);
+                                                window.param.range_list[i].push(change);//通知过的价格写入数组中
+                                                console.log(window.param);
+                                            }
+                                    );
+                                }
                             }
                         }
                     });
-                    if(text){
-                        $.post(
-                                'api_email.php',
-                                {to_content:text,n:Math.random(),flag:''},
-                                function(ret){
-                                    console.log(ret);
-                                }
-                        );
-                    }
-
                 }
             });
         }
-
-        window.coins = {}; //已选择需要监视的币，{'coinname':'price'}
-        window.more = 0;//涨幅
-        window.less = 0;//跌幅
-        window.polling_time_number = null;//周期轮询任务的时间编号
-        window.email_flag = {};
+        window.param = {};
+        window.param.coins = {}; //已选择需要监视的币和对应的基准价格，{'coinname':'price'}
+        window.param.range_list = {};//具体的变化幅度 {btc:[0.1,0.2,-0.1]}
         $(function(){
             //动态生成所有币的复选框，供选择性监视
             $.post(
@@ -123,25 +102,22 @@
                     alert('请选择至少一个虚拟货币！');
                     return false;
                 }
-                window.coins = {};//复位
-                window.email_flag = {};//复位
+                window.param.coins = {};//复位
                 ch.each(function(i,e){
-                    window.coins[$(this).val()] = null;
-                    window.email_flag[$(this).val()] = 0;//初始为 未发送
+                    window.param.coins[$(this).val()] = 0;//初始化价格为0
+                    window.param.range_list[$(this).val()] = [];//初始化梯度数组[0.1,0.2,-0.1]
                     $(this).parent().css('color','red');
                 });
-                console.log(window.coins);
-                console.log(window.email_flag);
+
                 //获取时间间隔
                 var interval = parseInt($('input[name=pollingtime]').val());
                 if(isNaN(interval) || interval < 5){
                     alert('轮询间隔请设置至少5秒');
                     return false;
                 }
-                //获取涨幅间隔
-                window.more = parseInt($('input[name=more]').val());
-                //获取跌幅间隔
-                window.less = parseInt($('input[name=less]').val());
+                //设置涨幅/跌幅 梯度值
+                window.param.more = parseFloat($('input[name=more]').val());
+                window.param.less = parseFloat($('input[name=less]').val());
 
                 $('input[name]').attr('disabled',true);//开启后所有input框禁用
 
@@ -157,11 +133,13 @@
                     $('input[name]').attr('disabled',false).parent().css('color','black');
                     flag = 1;
                 }
+                console.log(window.param);
             });
 
-            $('input[name=pollingtime]').val(60);
-            $('input[name=more]').val(10);
-            $('input[name=less]').val(10);
+            //设置初始值
+            $('input[name=pollingtime]').val(30);
+            $('input[name=more]').val(0.1);
+            $('input[name=less]').val(0.1);
 
         });
     </script>
@@ -172,8 +150,8 @@
     <div id="coins" style="width:99%;margin-bottom:5px;"><p style="color:red">正在加载数字货币...</p></div>
     <div id="interval">
         轮询间隔设置：<input type="text" name="pollingtime" style="width:50px;">(秒)<br/>
-        涨幅通知设置：<input type="text" name="more" style="width:30px;">%(百分比)<br/>
-        跌幅通知设置：<input type="text" name="less" style="width:30px;">%(百分比)<br/><br/>
+        涨幅通知梯度：<input type="text" name="more" style="width:40px;">(小数 0.1表示10%)<br/>
+        跌幅通知梯度：<input type="text" name="less" style="width:40px;"><br/><br/>
     </div>
     <button id="btn"
             style="width:80px;height:30px;background: green;color:white;border:1px solid green;font-size:14px;cursor:pointer">

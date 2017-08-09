@@ -7,157 +7,199 @@
         table th{
             //width:180px;
         }
+        input{
+            margin-bottom:3px;
+        }
     </style>
     <script src="jquery-1.8.3.min.js"></script>
     <script src="common.js"></script>
     <script>
-        window.mycoin = {};
-        window.interval_less = {}; //各个货币的定时编号，用于取消
-        window.interval_more = {};
-        window.order_price_less = {}; //各个货币的止损价格
-        window.order_price_more = {};
-        window.amount = {};
-        window.ep_more = {};//各个货币涨时的邮箱通知标识
-        window.ep_less = {};
+        window.param = {};
+        window.param.mycoin = {};//拥有币对应的数量 {btc:2,bts:1000}
+        window.param.interval = null; //轮询时间编号 默认设置为10秒一次
+        window.param.more_price = {}; //各个货币的止盈价格 {bis:11}
+        window.param.less_price = {};//止损价
+        window.param.buy_price = {};//买价
+        window.param.email_push = {};//各个货币涨时的邮箱通知标识 {bts:1,xem:0} 1已发 0未发 一个货币只发一次
+        window.param.lowbuy = {};//低位买进标识
+
+        //获取所有币的交易价格
+        function get_all_trade(){
+            console.log('get_all_rade is running now');
+            console.log(window.param.mycoin);
+            if(isEmptyObject(window.param.mycoin)){ //选择的所有币都已经挂单
+                clearInterval(window.param.interval);//结束轮询
+                task_start_flag = 1;//重新开启轮询标识
+            }else{//
+                $.ajax({
+                    type:'post',
+                    url:'api.php',
+                    data:{type:'get_ticker_all',n:Math.random()},
+                    dataType:'json', //返回类型
+                    success:function(ret){
+                        //console.log(ret);
+                        $.each(window.param.mycoin,function(i,e){ //i是币名 e是拥有数量
+                            var last = ret[i].ticker.last; //最新成交价
+                            console.log(coins_arr[i]+'最新价格：'+last);
+                            if(last >= window.param.more_price[i]){//达到止盈价格
+                                //止盈挂单
+                                $.post(
+                                        'api.php',
+                                        {type:'make_order',coinname:i,price:last,amount:e},
+                                        function(ret2){
+                                            console.log(ret2);
+                                            if(ret2.indexOf('succ') != -1){ //挂单成功
+                                                $("tr."+i+" td.order_status").html('<b style="color:blue">已挂单</b>');
+                                                $("tr."+i+" td.order_price").html('<b style="color:blue">'+last+'</b>');
+                                                var mc = Math.round((last-window.param.buy_price[i])*e);
+                                                $("tr."+i+" td.money_change").html('<b style="color:blue">+'+mc+'</b>');
+
+                                                if(window.param.email_push[i]){//邮箱通知
+                                                    $.post(
+                                                            'api_email.php',
+                                                            {to_content:coins_arr[i]+'：止盈挂单',title:'挂单成功提醒'},
+                                                            function(ret3){
+                                                                console.log(ret3);
+                                                            }
+                                                    );
+                                                }
+
+                                                $('tr.'+i+' .cancel').remove();
+
+                                                delete window.param.mycoin[i];//挂单成功后删除对象属性
+                                            }else{
+                                                //alert('挂单失败：'+ret2);
+                                                console.log('挂单失败：'+ret2);
+                                            }
+                                        }
+                                );
+
+                            }else if(last <= window.param.less_price[i]){
+                                //止损挂单
+                                $.post(
+                                        'api.php',
+                                        {type:'make_order',coinname:i,price:window.param.less_price[i],amount:e},
+                                        function(ret2){
+                                            console.log(ret2);
+                                            if(ret2.indexOf('succ') != -1){ //挂单成功
+                                                $("tr."+i+" td.order_status").html('<b style="color:blue">已挂单</b>');
+                                                $("tr."+i+" td.order_price").html('<b style="color:blue">'+window.param.less_price[i]+'</b>');
+                                                var mc = Math.round((window.param.buy_price[i]-window.param.less_price[i])*e);
+                                                $("tr."+i+" td.money_change").html('<b style="color:red">-'+mc+'</b>');
+
+                                                if(window.param.email_push[i]){//邮箱通知
+                                                    $.post(
+                                                            'api_email.php',
+                                                            {to_content:coins_arr[i]+'：止损挂单','title':'挂单成功提醒'},
+                                                            function(ret3){
+                                                                console.log(ret3);
+                                                            }
+                                                    );
+                                                }
+
+                                                $('tr.'+i+' .cancel').remove();
+
+                                                delete window.param.mycoin[i];//挂单成功后删除对象属性
+                                            }else{
+                                                console.log('挂单失败：'+ret2);
+                                            }
+                                        }
+                                );
+
+                            }
+
+                        });
+                    }
+                });
+            }
+
+        }
 
         $(function(){
+            var task_start_flag = 1;//保证轮询任务只有一个
+
             //提交
             $('#start').click(function(){
                 var coinname = $('input[name=coinname]').val();
                 var price = $('input[name=price]').val();
                 var amount = $('input[name=amount]').val();
-                var range = $('input[name=range]').val();
-                var type = $('select option:selected') .val();//选中的值
+                var more = $('input[name=more]').val();
+                var less = $('input[name=less]').val();
                 var cprice = $('#cprice').html();
-                var ep = $('input[name=email_push]:checked').val();//邮箱通知标志
+
+                if(window.param.mycoin[coinname]){alert('该币已经预设过了');return false;}
+                if(!more || !less){alert('幅度不能为空');return false;}
+                if(isNaN(more) || isNaN(less)){alert('价格变化幅度请填写正确的数字');return false;}
                 if(!price) {alert('买入价格不能为空');return false;}
                 if(amount*1 == 0) {alert('数量为0'); return false;}
                 alert("请务必确保买入价格是否正确！！！");
-                //价格计算
-                if(type == 'more'){
-                    var order_price = price*1*(1+range*1);
-                    window.order_price_more[coinname] = order_price;
-                    window.ep_more[coinname] = ep;
-                    var msg = '<b style="color:green">止盈('+Math.round(range*100)+'%)</b>';
-                    var money = '<b style="color:green">+'+Math.round(amount*1*(order_price - price))+'</b>';
-                }else if(type == 'less'){
-                    var order_price = price*1*(1-range*1); //跌到这个价格就挂单卖出止损
-                    window.order_price_less[coinname] = order_price;
-                    window.ep_less[coinname] = ep;
-                    var msg = '<b style="color:red">止损('+Math.round(range*100)+'%)</b>';
-                    var money = '<b style="color:red">-'+Math.round(amount*1*(price - order_price))+'</b>';
-                }
 
-                order_price = Math.round(order_price*100000)/100000;
-                var f = window.confirm('请确认以下数据!!!\n名称：'+coinname+'\n数量：'+amount+'\n卖价：'+order_price);
-                if(!f) return false;
+                //价格计算-止盈和止损
+                var more_price = price*1*(1+more*1);//止盈价
+                var less_price = price*1*(1-less*1);//止损价
+
+                window.param.more_price[coinname] = Math.round(more_price*10000)/10000;
+                window.param.less_price[coinname] = Math.round(less_price*10000)/10000;
+
+                window.param.email_push[coinname] = 1; //邮箱通知标志
+                window.param.mycoin[coinname] = amount;//保存币的数量
+                window.param.buy_price[coinname] = price;
+
+                console.log(window.param);
+                var f = window.confirm(
+                        '请确认以下数据!!!' +
+                        '\n名称：'+coinname+
+                        '\n数量：'+amount+
+                        '\n止盈价：'+window.param.more_price[coinname]+
+                        '\n止损价：'+window.param.less_price[coinname]
+                );
+                if(!f){
+                    delete window.param.mycoin[coinname];
+                    return false;
+                }
                 //追加tr
                 $('#tb').append(
-                        '<tr class="'+coinname+type+'">' +
+                        '<tr class="'+coinname+'">' +
                         '<td>'+coins_arr[coinname]+'('+coinname+')</td>' +
                         '<td>'+price+'</td>' +
-                        '<td>'+order_price+'</td>' +
+                        '<td class="order_price">--</td>' +
                         '<td>'+amount+'</td>' +
-                        '<td>'+money+'</td>' +
-                        '<td>'+msg+'</td>' +
-                        '<td class="order">挂单中...</td>' +
-                        '<td>'+ep+'</td>' +
-                        '<td><button class="cancel" param="'+type+'" coinname="'+coinname+'">取消</button></td>' +
+                        '<td style="color:red">'+less*100+'%</td>' +
+                        '<td style="color:green">'+more*100+'%</td>' +
+                        '<td class="money_change">--</td>' +
+                        '<td class="order_status">挂单中...</td>' +
+                        '<td><button class="cancel">取消</button></td>' +
                         '</tr>'
                 );
-                if(type == "less"){ //止损
-                    window.interval_less[coinname] = setInterval(function(){ //保存相应货币的止损轮询值
-                        //定时获取交易价格行情
-                        $.post('api.php',{type:'get_ticker',coinname:coinname},function(ret){
-                            var last = ret.ticker.last; //最新成家价格
-                            console.log(coinname+':'+last);
-                            if(last <= order_price){ //低于止损价位，挂单卖出
-                                //设置止损挂单
-                                $.post(
-                                        'api.php',
-                                        {type:'make_order',coinname:coinname,price:order_price,amount:amount},
-                                        function(ret){
-                                            console.log(ret);
-                                            if(ret.indexOf('succ') != -1){ //挂单成功
-                                                $("tr."+coinname+'less'+" td.order").html('<b style="color:blue">已挂单</b>');
-                                                if(!window.ep_less[coinname]){//无邮箱通知
-                                                    window.clearInterval(window.interval_less[coinname]);
-                                                }
-                                                $('button[coinname='+coinname+'][param=less]').remove();
-                                            }else{
-                                                alert('挂单失败：'+ret);
-                                            }
-                                        }
-                                );
-                                //邮箱通知
-                                if(window.ep_less[coinname]){
-                                    var content = coins_arr[coinname]+'：'+last +',跌幅超过预警';
-                                    $.post(
-                                            'api_email.php',
-                                            {to_content:content,n:Math.random(),flag:'↓'},
-                                            function(ret){
-                                                console.log("email return："+ret);
-                                                window.clearInterval(window.interval_less[coinname]);
-                                            }
-                                    );
 
-                                }
-                            }
-                        },'json');
-                    },5000);//5秒轮询一次
+                //复位
+                $('input[type^=checkbox]').val('');
+                $('#coinname_chn,#cprice').html('');
+
+                //开启轮询任务,保证只执行一次
+                if(task_start_flag == 1){
+                    window.param.interval = setInterval(get_all_trade,10*1000);//10s一次
+                    task_start_flag = 0;
                 }
-                if(type == "more"){ //止盈
-                    window.interval_more[coinname] = setInterval(function(){
-                        //定时获取交易价格行情
-                        $.post('api.php',{type:'get_ticker',coinname:coinname},function(ret){
-                            var last = ret.ticker.last;
-                            console.log(coinname+':'+last);
-                            if(last >= order_price){ //大于止盈价位
-                                //设置止盈挂单
-                                $.post(
-                                        'api.php',
-                                        {type:'make_order',coinname:coinname,price:order_price,amount:amount},
-                                        function(ret){
-                                            console.log(ret);
-                                            if(ret.indexOf('succ') != -1){ //挂单成功
-                                                $("tr."+coinname+'more'+" td.order").html('<b style="color:blue">已挂单</b>');
-                                                if(!window.ep_more[coinname])
-                                                    window.clearInterval(window.interval_more[coinname]);
-                                                $('button[coinname='+coinname+'][param=more]').remove();
-                                            }else{
-                                                window.clearInterval(window.interval_more[coinname]);//结束轮询
-                                                alert('挂单失败：'+ret);
-                                            }
-                                        }
-                                );
-                                //邮箱通知
-                                if(window.ep_more[coinname]){
-                                    var content = coins_arr[coinname]+'：'+last+',涨幅超过预警';
-                                    $.post(
-                                            'api_email.php',
-                                            {to_content:content,n:Math.random(),flag:'↑'},
-                                            function(ret){
-                                                console.log("email return："+ret);
-                                                window.clearInterval(window.interval_more[coinname]);
-                                            }
-                                    );
-                                }
-                            }
-                        },'json');
-                    },5000);//5s轮询一次价格
-                }
+
 
             });
 
             $('input[name=coinname]').blur(function(){
                 var name = $(this).val();
-                var coinname = $(this).val()+'_balance';
+                var coinname = $(this).val()+'_balance'; //可用币的数量
+                //获取货币中文名称
+                if(coins_arr[name])
+                    $('#coinname_chn').html(coins_arr[name]);
+                else
+                    $('#coinname_chn').html('未知');
+                //获取账户余额
                 $.post('api.php',{type:'get_my_balance'},function(ret){
-                    window.mycoin = ret;console.log(ret);
+                    console.log(ret);
                     var amount = ret[coinname];
-                    window.amount[name] = amount;
                     $('input[name=amount]').val(amount);
                 },'json');
+                //获取最新价格
                 $.post('api.php',{type:'get_ticker',coinname:name},function(ret){
                     var last = ret.ticker.last;
                     $('#cprice').html(last);
@@ -167,30 +209,23 @@
 
             //取消挂单
             $(document).on('click',' .cancel',function(){ //dom操作后的元素用此方式触发
-                var name = $(this).attr('coinname');
-                var param = $(this).attr('param');
-                $(this).parent().parent('tr').remove();
-                if(param == 'less')  var t = window.interval_less[name];
-                if(param == 'more') var t = window.interval_more[name];
-
-                window.clearInterval(t);
-            });
-
-            $('#change').change(function(){
-                var a = $(this).val();
-                if(a == 'more'){
-                    $('input[name=range]').css('color','green');
-                }else{
-                    $('input[name=range]').css('color','red');
+                var coinname = $(this).parent().parent().attr('class');
+                delete window.param.mycoin[coinname];
+                if(isEmptyObject(window.param.mycoin)){ //没有需要执行轮询的币
+                    clearInterval(window.param.interval);//结束轮询
+                    task_start_flag = 1;//重新开启轮询标识
                 }
+                $(this).parent().parent().remove();
+                console.log(window.param);
             });
-            var a = $('#change').val();
-            if(a == 'more'){
-                $('input[name=range]').css('color','green');
-            }else{
-                $('input[name=range]').css('color','red');
-            }
         });
+
+        function isEmptyObject(e) {
+            var t;
+            for (t in e)
+                return !1;
+            return !0
+        }
     </script>
 </head>
 <body>
@@ -205,28 +240,23 @@
        </tr>
        <tr style="background: lightblue">
            <th colspan="15" align="left">
-               货币名称：<input name="coinname" style="width:100px;"/>(货币英文代码，如btc/bts/ltc)<br/>
-               买入价格：<input name="price" style="width:100px;"/>元 (当前价格：<b id="cprice" style="color:red"></b>)<br/>
+               货币英文：<input name="coinname" style="width:100px;"/>(货币名称：<b id="coinname_chn" style="color:red"></b>)<br/>
+               买入价格：<input name="price" style="width:100px;"/>(当前价格：<b id="cprice" style="color:red"></b>)<br/>
                可用数量：<input name="amount" style="width:100px">(自动获取)<br/>
-               变化幅度：<select name="change" id="change" style="width:80px;">
-               <option value="more" selected="selected">涨幅</option>>
-               <option value="less">跌幅</option>
-                </select>
-               <input name="range" value="0.1" style="width:100px;color:green">(0.1表示10%)<br/>
-               邮箱通知：<input type="radio" name="email_push" value="1">是 &nbsp;
-               <input type="radio" name="email_push" value="0" checked="checked">否<br/>
+               止盈涨幅：<input name="more" style="width:100px;color:green;">(小数 0.1表示10%)<br/>
+               止损跌幅：<input name="less" style="width:100px;color:red;"><br/>
                <button id="start" style="width:80px;height:30px;cursor:pointer;background: green;color:yellow">启用</button>
            </th>
        </tr>
        <tr>
-           <th nowrap="">币名</th>
+           <th nowrap>币名</th>
            <th nowrap>买价</th>
-           <th nowrap>卖价</th>
+           <th nowrap>挂单价</th>
            <th nowrap>挂单数量</th>
+           <th nowrap>止损幅度</th>
+           <th nowrap>止盈幅度</th>
            <th nowrap>资金变化</th>
-           <th nowrap>止损(止盈)状态</th>
            <th nowrap>挂单状态</th>
-           <th nowrap>邮箱通知</th>
            <th nowrap>操作</th>
        </tr>
    </table>
