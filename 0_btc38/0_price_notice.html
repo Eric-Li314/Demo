@@ -9,12 +9,6 @@
     <!--<link rel="icon" href="favicon.ico" mce_href="favicon.ico" type="image/x-icon">
     <link rel="shortcut icon" href="favicon.ico" mce_href="favicon.ico" type="image/x-icon">-->
     <style>
-        table th{
-            width:180px;
-        }
-        input[type=checkbox]{
-
-        }
         .cc{
             width:140px;
             display: inline-block;
@@ -44,7 +38,7 @@
                                     body: msg,
                                     silent: true,
                                     sticky: true,
-                                    //renotify:true
+                                    renotify:true
                                 }
                         );
                         notify.onclick=function(){
@@ -57,12 +51,13 @@
                             console.log("HTML5桌面消息出错！！！");
                         };
                         notify.onshow = function () { //设置延时关闭弹窗
-                            setTimeout(function(){
+                            /*setTimeout(function(){
                                 notify.close();
-                            },10000)
+                            },15000)*/
                         };
                         notify.onclose = function () {
-                            console.log("HTML5桌面消息关闭！！！");
+                            //notify.onshow();//弹窗不消失
+                            //console.log("HTML5桌面消息关闭！！！");
                         };
                     }
                 });
@@ -164,6 +159,7 @@
                     console.log($(this).val());
                     window.coin[i] = e.value;
                 });
+
                 $('input[name]').attr('disabled',true);
 
                 if(flag == 1){
@@ -221,7 +217,7 @@
                 }
             });
             //设置默认时间间隔
-            $('input[name=poptime]').val(30);
+            $('input[name=poptime]').val(10);
             $('input[name=voicetime]').val(60);
         });
     </script>
@@ -230,9 +226,9 @@
 <div style="width:90%;text-align: left;">
     <p>请选择对应币种进行监视</p>
     <div id="coins" style="width:99%;margin-bottom:5px;"><p style="color:red">正在加载数字货币...</p></div>
-    <div id="interval">
+    <div id="interval" style="margin:15px 0;">
         价格监视间隔(秒)：<input type="text" name="poptime" style="width:50px;">(与弹窗间隔一致)<br/>
-        语音播报间隔(秒)：<input type="text" name="voicetime" style="margin:5px 0;width:50px;">
+        语音播报间隔(秒)：<input type="text" name="voicetime" style="width:50px;"><br/>
     </div>
     <button id="btn"
             style="width:80px;height:30px;background: green;color:white;border:1px solid green;font-size:14px;cursor:pointer">

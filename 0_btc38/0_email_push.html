@@ -51,7 +51,7 @@
                             //执行通知  排除变化为0或者变化幅度达不到预设梯度的最低值（如0.01/0.1取整后为0）
                             if(change){
                                 if(window.param.range_list[i].indexOf(change) == -1){//不存在，则进行邮件通知
-                                    var text = coins_arr[i]+'波动幅度：'+change*100+'%';
+                                    var text = coins_arr[i]+'：'+current_price+'，'+Math.round(change*100)+'%';
                                     $.post(
                                             'api_email.php',
                                             {to_content:text,n:Math.random(),flag:''},
@@ -118,6 +118,10 @@
                 //设置涨幅/跌幅 梯度值
                 window.param.more = parseFloat($('input[name=more]').val());
                 window.param.less = parseFloat($('input[name=less]').val());
+                if(window.param.more/0.01 <1 || window.param.less/0.01 <1){
+                    alert('梯度的最小粒度为0.01');
+                    return false;
+                }
 
                 $('input[name]').attr('disabled',true);//开启后所有input框禁用
 
