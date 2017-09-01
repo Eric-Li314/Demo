@@ -41,10 +41,10 @@
                             //变化倍数为预设的整数倍且在该梯度没有被通知过时则发邮件通知
                             var change = 0;//变化跌幅（为预设梯度的整数倍）
                             if(price_change > 0){
-                               var change_times = Math.floor(price_change/window.param.more);//变化倍数
+                               var change_times = parseInt(price_change/window.param.more);//变化倍数，取整
                                 change = change_times*1*window.param.more;
                             }else if(price_change < 0){
-                               var change_times = Math.floor(price_change/window.param.less);
+                               var change_times = parseInt(price_change/window.param.less);
                                 change = change_times*1*window.param.less;
                             }
                             change = Math.floor(change*1000)/1000;
@@ -61,7 +61,16 @@
                                                 console.log(window.param);
                                             }
                                     );
+                                    if(change == 0.1 || change == -0.1){
+                                        //直接发短信
+                                        $.post(
+                                                'api_sms.php',
+                                                {msg:text,n:Math.random(),phone:13629795255},
+                                                function(ret){}
+                                        );
+                                    }
                                 }
+
                             }
                         }
                     });

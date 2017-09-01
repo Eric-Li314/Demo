@@ -2,7 +2,7 @@
 
 $to_email  = '13629795255@139.com';
 $to_title  = '价格浮动通知';
-$to_content = $_REQUEST['to_content'];
+$to_content = $_REQUEST['to_content']."(".date('H:i:s').")";
 if(isset($_REQUEST['title'])){
     $to_title = $_REQUEST['title'];
 }
