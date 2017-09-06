@@ -22,6 +22,24 @@
         function get_trade(){
             console.log('get_trade run');
             console.log(window.param);
+
+            //每天01点01分清空之前数据
+            var h=new Date().getHours();
+            var m=new Date().getMinutes();
+            console.log(h);
+            console.log(m);
+            if(h==1 && m==1){
+                console.log('清空重置数据');
+                $.each(window.param.coins,function(i,e){ //基准价置0
+                    window.param.coins[i] = 0;
+                });
+                $.each(window.param.range_list,function(i,e){ //梯度值清空
+                    window.param.range_list[i] = [];
+                });
+
+                return false;//重置数据时不执行后续操作
+            }
+
             $.ajax({
                 type:'post',
                 url:'api.php',
