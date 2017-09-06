@@ -28,6 +28,10 @@
                 data:{type:'get_ticker_all',n:Math.random()},
                 dataType:'json', //返回类型
                 success:function(ret){
+                    if(!ret){
+                        console.log('没有获取到结果');
+                        return false;
+                    }
                     $.each(window.param.coins,function(i,e){
                         if(!window.param.coins[i]){
                             //初次运行设置基准价格
