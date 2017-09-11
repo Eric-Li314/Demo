@@ -74,6 +74,10 @@
                 data:{type:'get_ticker_all',n:Math.random()},
                 dataType:'json', //返回类型
                 success:function(ret){
+                    if(!ret){
+                        console.log('没有获取到结果');
+                        return false;
+                    }
                     var data = ''; //右下角弹出内容
                     var text = ''; //语音合成内容
 		            var num = 1;

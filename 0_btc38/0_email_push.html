@@ -17,6 +17,52 @@
     <script src="jquery-1.8.3.min.js"></script>
     <script src="common.js"></script>
     <script>
+        function showNotice(title,msg){
+            var Notification = window.Notification || window.mozNotification || window.webkitNotification;
+            if(Notification){
+                Notification.requestPermission(function(status){
+                    //status默认值'default'等同于拒绝 'denied' 意味着用户不想要通知 'granted' 意味着用户同意启用通知
+                    if("granted" != status){
+                        return;
+                    }else{
+                        var tag = "sds"+Math.random();
+                        var notify = new Notification(
+                                title,
+                                {
+                                    dir: "auto",
+                                    tag: "testTag",
+                                    //icon: URL + 'static/js/webim/images/text-message.png',
+                                    body: msg,
+                                    silent: true,
+                                    sticky: true,
+                                    renotify:true
+                                }
+                        );
+                        notify.onclick=function(){
+                            //如果通知消息被点击,通知窗口将被激活
+                            window.focus();
+                            //window.open('http://www.btc38.com/','_blank')
+
+                        };
+                        notify.onerror = function () {
+                            console.log("HTML5桌面消息出错！！！");
+                        };
+                        notify.onshow = function () { //设置延时关闭弹窗
+                            /*setTimeout(function(){
+                             notify.close();
+                             },15000)*/
+                        };
+                        notify.onclose = function () {
+                            //notify.onshow();//弹窗不消失
+                            //console.log("HTML5桌面消息关闭！！！");
+                        };
+                    }
+                });
+            }else{
+                console.log("您的浏览器不支持桌面消息");
+            }
+        };
+
 
         //获取最近交易价格,触发邮箱推送
         function get_trade(){
@@ -48,6 +94,7 @@
                         console.log('没有获取到结果');
                         return false;
                     }
+                    var notice_text = '';
                     $.each(window.param.coins,function(i,e){
                         if(!window.param.coins[i]){
                             //初次运行设置基准价格
@@ -70,6 +117,9 @@
                             change = Math.floor(change*1000)/1000;
                             //执行通知  排除变化为0或者变化幅度达不到预设梯度的最低值（如0.01/0.1取整后为0）
                             if(change){
+                                notice_text += i+'：'+current_price+'，'+Math.round(change*100)+'%\n';
+
+                                //邮件通知,已通知过的幅度不再通知
                                 if(window.param.range_list[i].indexOf(change) == -1){//不存在，则进行邮件通知
                                     var text = coins_arr[i]+'：'+current_price+'，'+Math.round(change*100)+'%';
                                     $.post(
@@ -88,18 +138,29 @@
                                                 {msg:text,n:Math.random(),phone:13629795255},
                                                 function(ret){}
                                         );
+                                    }else if(change == -0.2){
+                                        $.post(
+                                                'api_sms.php',
+                                                {msg:text+',请及时止损！！！',n:Math.random(),phone:13629795255},
+                                                function(ret){}
+                                        );
                                     }
                                 }
 
                             }
                         }
                     });
+                    //桌面通知
+                    if(window.param.dnotice && notice_text){
+                        showNotice('',notice_text);
+                    }
                 }
             });
         }
         window.param = {};
         window.param.coins = {}; //已选择需要监视的币和对应的基准价格，{'coinname':'price'}
         window.param.range_list = {};//具体的变化幅度 {btc:[0.1,0.2,-0.1]}
+        window.param.dnotice = 0;//桌面通知
         $(function(){
             //动态生成所有币的复选框，供选择性监视
             $.post(
@@ -126,7 +187,7 @@
             );
             var flag = 1;//监视启用、停用标志
             $('#btn').click(function(){ //启用邮件价格通知
-                var ch = $('input[type=checkbox]:checked');
+                var ch = $('input[type=checkbox]:checked').not('input[name=dnotice]');
                 if(ch.length == 0) {
                     alert('请选择至少一个虚拟货币！');
                     return false;
@@ -150,6 +211,10 @@
                 if(window.param.more/0.01 <1 || window.param.less/0.01 <1){
                     alert('梯度的最小粒度为0.01');
                     return false;
+                }
+                //桌面通知
+                if($('input[name=dnotice]').is(':checked')) {
+                    window.param.dnotice = 1;
                 }
 
                 $('input[name]').attr('disabled',true);//开启后所有input框禁用
@@ -184,7 +249,8 @@
     <div id="interval">
         轮询间隔设置：<input type="text" name="pollingtime" style="width:50px;">(秒)<br/>
         涨幅通知梯度：<input type="text" name="more" style="width:40px;">(小数 0.1表示10%)<br/>
-        跌幅通知梯度：<input type="text" name="less" style="width:40px;"><br/><br/>
+        跌幅通知梯度：<input type="text" name="less" style="width:40px;"><br/>
+        开启桌面通知：<input type="checkbox" name="dnotice" value="1"><br/><br/>
     </div>
     <button id="btn"
             style="width:80px;height:30px;background: green;color:white;border:1px solid green;font-size:14px;cursor:pointer">
