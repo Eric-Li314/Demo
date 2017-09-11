@@ -26,8 +26,6 @@
             //每天01点01分清空之前数据
             var h=new Date().getHours();
             var m=new Date().getMinutes();
-            console.log(h);
-            console.log(m);
             if(h==1 && m==1){
                 console.log('清空重置数据');
                 $.each(window.param.coins,function(i,e){ //基准价置0
@@ -83,14 +81,14 @@
                                                 console.log(window.param);
                                             }
                                     );
-                                    /*if(change == 0.1 || change == -0.1){
-                                        //直接发短信
+                                    //涨幅或者跌幅10%短信通知
+                                    if(change == 0.1 || change == -0.1){
                                         $.post(
                                                 'api_sms.php',
                                                 {msg:text,n:Math.random(),phone:13629795255},
                                                 function(ret){}
                                         );
-                                    }*/
+                                    }
                                 }
 
                             }
