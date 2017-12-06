@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>监控-websocket</title>
+    <style>
+        .top{
+            text-align: center;font-size: 20px;font-weight:bold;
+            color:green;
+        }
+        #main{
+            margin:0 auto;
+        }
+    </style>
+    <script src="../common/jquery-1.8.3.min.js"></script>
+    <script src="../common/echarts.js"></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.js'></script>
+</head>
+<body>
+<p class="top">网络延迟监控-nodejs+websocket</p><hr/>
+<!-- 为 ECharts 准备一个具备大小（宽高）的 DOM -->
+<div id="main" style="width: 90%;height:600px;"></div>
+<input type="hidden" id="lastid" name="lastid" >
+<input id="msg"><button id="btn">send to server</button>
+<script type="text/javascript">
+
+    // 基于准备好的dom，初始化echarts实例
+    var myChart = echarts.init(document.getElementById('main'));
+    var  data = {};
+    var option = {
+        title: {
+            text: '动态数据 + 时间坐标轴'
+        },
+        tooltip: {
+            trigger: 'axis',
+            formatter: function (params) {
+                //console.log(params);
+                params = params[0];
+                return "时间："+params.name + '<br/>延迟：' + params.value[1]+"ms";
+            },
+            axisPointer: {
+                animation: false
+            }
+        },
+        xAxis: {
+            type: 'time',
+            splitLine: {
+                show: false
+            },
+            name:"时间"
+        },
+        yAxis: {
+            type: 'value',
+            boundaryGap: [0, '100%'],
+            splitLine: {
+                show: false
+            },
+            name:"单位(ms)"
+        },
+        series: [{
+            name: '模拟数据',
+            type: 'line',
+            showSymbol: false,
+            hoverAnimation: false,
+            data: data
+        }]
+    };
+
+    //myChart.setOption(option);
+
+    //方式1 -- websocket方式同服务器通信
+   /* if ("WebSocket" in window) {
+        console.log("您的浏览器支持 WebSocket！");
+
+        // 创建一个 web socket
+        var ws = new WebSocket("ws://localhost:8181");
+
+        ws.onopen = function() {
+            console.log("WebSocket-链接已经建立！");
+        };
+
+        ws.onmessage = function (evt) {
+            console.log("WebSocket-收到服务器消息："+evt.data);
+            var data = JSON.parse(evt.data);
+            option.series[0].data = data;
+            myChart.setOption(option);
+            console.log(option);
+        };
+
+        ws.onclose = function() {
+            console.log("WebSocket-连接已关闭！");
+        };
+
+        ws.onerror = function(evt){
+            console.log("WebSocket-发生错误："+evt.data);
+        }
+    } else {
+        alert("您的浏览器不支持 WebSocket!");
+    }
+
+    $(document).ready(function(){
+        $('#btn').click(function(){
+            var msg = $('#msg').val();
+            if(!msg) {
+                alert("消息不能为空");
+                return false;
+            }
+            ws.send(msg);
+            alert("发送成功，请在服务端查看");
+
+        });
+    });*/
+
+    //方式2 -- socket.io通信方式
+
+    var socket = io.connect('http://127.0.0.1:9999');// 连接服务端
+    socket.on('connect', function(){
+        console.log('Socket.io-已建立连接');
+        //socket.emit('login12', 111);//触发login12事件，该事件会在服务端被监听并执行回调
+    });
+
+    // 后端通过触发new_data推送消息，此处监听new_data事件
+    socket.on('new_data', function(msg){
+        console.log("Socket.io-收到数据 --"+new Date());
+        var data = JSON.parse(msg);
+        option.series[0].data = data;
+        myChart.setOption(option);
+        console.log(option);
+    });
+
+    socket.on('disconnect',function(){
+        console.log('Socket.io-连接已断开');
+    });
+
+    socket.on('error',function(){
+        console.log('Socket.io-发生错误');
+    });
+
+
+</script>
+
+</body>
+</html>
